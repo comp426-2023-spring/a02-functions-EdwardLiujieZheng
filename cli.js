@@ -1,90 +1,50 @@
 #!/usr/bin/env node
 
 // import modules
+import fetch from 'node-fetch';
+import minimist from 'minimist';
 import moment from 'moment-timezone';
-import fetch from "node-fetch";
 
-// Show help
-function show_help () {
-  console.log("Usage: galosh.js [options] -[n|s] LATITUDE -[e|w] LONGITUDE -z TIME_ZONE");
-  console.log("    -h            Show this help message and exit.");
-  console.log("    -n, -s        Latitude: N positive; S negative.");
-  console.log("    -e, -w        Longitude: E positive; W negative.");
-  console.log("    -z            Time zone: uses tz.guess() from moment-timezone by default.");
-  console.log("    -d 0-6        Day to retrieve weather: 0 is today; defaults to 1.");
-  console.log("    -j            Echo pretty JSON from open-meteo API and exit.");
-  process.exit(0);
+// parse args
+const args = minimist(process.argv.slice(2));
+
+// show help and exit
+if(args.h){
+    console.log(`Usage: galosh.js [options] -[n|s] LATITUDE -[e|w] LONGITUDE -z TIME_ZONE
+    -h            Show this help message and exit.
+    -n, -s        Latitude: N positive; S negative.
+    -e, -w        Longitude: E positive; W negative.
+    -z            Time zone: uses tz.guess() from moment-timezone by default.
+    -d 0-6        Day to retrieve weather: 0 is today; defaults to 1.
+    -j            Echo pretty JSON from open-meteo API and exit.`);
+    process.exit(0);
 }
 
-// parse input and return {url, day, need_jason}
-function parse_input () {
-    let url = 'https://api.open-meteo.com/v1/forecast?'
-    let need_json = false;
-    let need_guess_timezone = true;
-    let day = 0;
-    const args = process.argv.slice();
-
-    // console.log(args)
-    for(let i = 2; i < args.length; i += 2){
-        switch(args[i]){
-            case '-h':
-                show_help();
-                break;
-            case '-n':
-                url = url + "latitude=" + args[i+1].toString() + "&";
-                break;
-            case '-s':
-                url = url + "latitude=" + (-args[i+1]).toString() + "&";
-                break;
-            case '-e':
-                url = url + "longitude=" + args[i+1].toString() + "&";
-                break;
-            case '-w':
-                url = url + "longitude=" + (-args[i+1]).toString() + "&";
-                break;
-            case '-z':
-                url = url + "timezone=" + args[i+1].replace("/", "%2F") + "&";
-                need_guess_timezone = false;
-                break;
-            case '-d':
-                day = args[i+1];
-                break;
-            case '-j':
-                need_json = true;
-                break;
-        }
-    }
-
-    if(need_guess_timezone) url = url + "timezone=" + moment.tz.guess().replace("/", "%2F") + "&";
-    url = url + "daily=precipitation_hours"
-
-    // console.log(url)
-    return {url, day, need_json};
-}
+// interpret args
+const latitude = args.n || -args.s;
+const longitude = args.e || -args.w;
+const timezone = args.z || moment.tz.guess();
+const day = args.d == null ? 0 : args.d;
 
 // Make a request
-let args= parse_input()
-const response = await fetch(args.url);
+let url = 'https://api.open-meteo.com/v1/forecast?latitude=' + latitude + '&longitude=' + longitude + '&timezone=' + timezone + '&daily=precipitation_hours';
+
+const response = await fetch(url);
+// Get the data from the request
 const data = await response.json();
 
-// log output
-if(args.need_json){
+if (args.j) {
     console.log(data);
     process.exit(0);
 }
 
-const precipitation = data.daily.precipitation_hours[args.day];
-let messsage = "";
-if(precipitation == 0) messsage += "You won't need your galoshes ";
-else messsage += "You might need your galoshes ";
+const precipitation_hours = data.daily.precipitation_hours[day];
 
-const days = args.day;
-if (days == 0) {
-  messsage += "today.";
-} else if (days > 1) {
-  messsage += "in " + days + " days."
+let phrase = precipitation_hours === 0 ? "will not" : "might";
+if (day === 0) {
+  console.log(`You ${phrase} need your galoshes today.`)
+} else if (day > 1) {
+  console.log(`You ${phrase} need your galoshes in ${day} days.`)
 } else {
-  messsage += "tomorrow."
+  console.log(`You ${phrase} need your galoshes tomorrow.`)
 }
-
-console.log(messsage);

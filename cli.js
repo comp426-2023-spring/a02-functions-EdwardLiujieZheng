@@ -77,7 +77,7 @@ if(args.need_json){
 
 const precipitation = data.daily.precipitation_hours[args.day];
 let messsage = "";
-if(precipitation == 0) messsage += "You will not need your galoshes ";
+if(precipitation == 0) messsage += "You won't need your galoshes ";
 else messsage += "You might need your galoshes ";
 
 const days = args.day;

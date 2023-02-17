@@ -15,41 +15,77 @@ function show_help () {
   process.exit(0);
 }
 
-// parse input and return an url
+// parse input and return {url, day, need_jason}
 function parse_input () {
     let url = 'https://api.open-meteo.com/v1/forecast?'
-    let is_first_arg = true;
     let need_json = false;
+    let need_guess_timezone = true;
+    let day = 0;
     const args = process.argv.slice();
+
     // console.log(args)
     for(let i = 2; i < args.length; i += 2){
-        console.log(args[i]);
         switch(args[i]){
             case '-h':
                 show_help();
                 break;
             case '-n':
-                console.log(args[i+1]);
+                url = url + "latitude=" + args[i+1].toString() + "&";
+                break;
+            case '-s':
+                url = url + "latitude=" + (-args[i+1]).toString() + "&";
+                break;
+            case '-e':
+                url = url + "longitude=" + args[i+1].toString() + "&";
+                break;
+            case '-w':
+                url = url + "longitude=" + (-args[i+1]).toString() + "&";
+                break;
+            case '-z':
+                url = url + "timezone=" + args[i+1].replace("/", "%2F") + "&";
+                need_guess_timezone = false;
+                break;
+            case '-d':
+                day = args[i+1];
                 break;
             case '-j':
-                console.log('echo json');
+                need_json = true;
                 break;
         }
     }
+
+    if(need_guess_timezone) url = url + "timezone=" + moment.tz.guess().replace("/", "%2F") + "&";
+    url = url + "daily=precipitation_hours&current_weather=true&temperature_unit=fahrenheit"
+
+    // console.log(url)
+    return {url, day, need_json};
 }
-
-parse_input ()
-
-
-const timezone = moment.tz.guess();
-
-//console.log(timezone)
 
 //let sample_url = 'https://api.open-meteo.com/v1/forecast?latitude=35.94&longitude=-79.03&timezone=America%2FNew_York&daily=precipitation_hours&current_weather=true&temperature_unit=fahrenheit'
 
-
 // Make a request
-//const response = await fetch(url);
-//const data = await response.json();
+let args= parse_input()
+const response = await fetch(args.url);
+const data = await response.json();
 
-// console.log(data)
+// log output
+if(args.need_json){
+    console.log(data);
+    process.exit(0);
+}
+
+const precipitation = data.daily.precipitation_hours[args.day];
+let messsage = "";
+if(precipitation == 0) messsage += "You will not need your galoshes ";
+else messsage += "You might need your galoshes ";
+
+const days = args.day;
+if (days == 0) {
+  messsage += "today.";
+} else if (days > 1) {
+  messsage += "in " + days + " days."
+} else {
+  messsage += "tomorrow."
+}
+
+console.log(messsage);

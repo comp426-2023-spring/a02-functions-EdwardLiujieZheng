@@ -56,13 +56,11 @@ function parse_input () {
     }
 
     if(need_guess_timezone) url = url + "timezone=" + moment.tz.guess().replace("/", "%2F") + "&";
-    url = url + "daily=precipitation_hours&current_weather=true&temperature_unit=fahrenheit"
+    url = url + "daily=precipitation_hours"
 
     // console.log(url)
     return {url, day, need_json};
 }
-
-//let sample_url = 'https://api.open-meteo.com/v1/forecast?latitude=35.94&longitude=-79.03&timezone=America%2FNew_York&daily=precipitation_hours&current_weather=true&temperature_unit=fahrenheit'
 
 // Make a request
 let args= parse_input()

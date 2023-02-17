@@ -2,6 +2,7 @@
 
 // import modules
 import moment from 'moment-timezone';
+import fetch from "node-fetch";
 
 // Show help
 function show_help () {

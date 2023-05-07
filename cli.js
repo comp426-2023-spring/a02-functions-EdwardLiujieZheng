@@ -8,6 +8,7 @@ import moment from 'moment-timezone';
 // parse args
 const args = minimist(process.argv.slice(2));
 
+// help
 function showHelp() {
   console.log(`Usage: galosh.js [options] -[n|s] LATITUDE -[e|w] LONGITUDE -z TIME_ZONE
   -h            Show this help message and exit.

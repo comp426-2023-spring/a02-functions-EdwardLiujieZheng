@@ -1,9 +1,11 @@
 #!/usr/bin/env node
 
+// import modules
 import fetch from 'node-fetch';
 import minimist from 'minimist';
 import moment from 'moment-timezone';
 
+// parse args
 const args = minimist(process.argv.slice(2));
 
 function showHelp() {

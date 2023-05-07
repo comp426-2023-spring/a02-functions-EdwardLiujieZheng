@@ -31,6 +31,7 @@ const longitude = args.e || -args.w;
 const timezone = args.z || moment.tz.guess();
 const day = args.d == null ? 1 : args.d;
 
+// make url
 const url = `https://api.open-meteo.com/v1/forecast?latitude=${latitude}&longitude=${longitude}&timezone=${timezone}&daily=precipitation_hours`;
 
 const getWeatherData = async () => {

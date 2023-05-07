@@ -34,6 +34,7 @@ const day = args.d == null ? 1 : args.d;
 // make url
 const url = `https://api.open-meteo.com/v1/forecast?latitude=${latitude}&longitude=${longitude}&timezone=${timezone}&daily=precipitation_hours`;
 
+// helper function
 const getWeatherData = async () => {
   const response = await fetch(url);
   const data = await response.json();

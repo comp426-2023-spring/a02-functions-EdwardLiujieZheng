@@ -25,6 +25,7 @@ if (args.h) {
   showHelp();
 }
 
+// interpret args
 const latitude = args.n || -args.s;
 const longitude = args.e || -args.w;
 const timezone = args.z || moment.tz.guess();

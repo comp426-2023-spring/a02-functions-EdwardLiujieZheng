@@ -51,4 +51,5 @@ const getWeatherData = async () => {
   console.log(`You ${phrase} need your galoshes ${dayStr}.`);
 };
 
+// get weather data
 getWeatherData();

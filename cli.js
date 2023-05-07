@@ -20,6 +20,7 @@ function showHelp() {
   process.exit(0);
 }
 
+// show help
 if (args.h) {
   showHelp();
 }
